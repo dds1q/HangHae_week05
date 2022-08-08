@@ -48,13 +48,24 @@ public class CommentController {
     return commentService.createSubComment(requestDto, request );
   }
 
+  @RequestMapping(value = "/api/auth/sub-comment/{id}", method = RequestMethod.PUT)
+  public ResponseDto<?> updateSubComment(
+          @PathVariable Long id,
+          @RequestBody SubCommentRequestDto requestDto,
+          HttpServletRequest request
+  ) {
+    return commentService.updateSubComment(requestDto, request , id);
+  }
+
+  @RequestMapping(value = "/api/auth/sub-comment/{id}", method = RequestMethod.DELETE)
+  public ResponseDto<?> deleteSubComment(@PathVariable Long id,
+                                      HttpServletRequest request) {
+    return commentService.deleteSubComment(id, request);
+  }
+
 //  @RequestMapping(value = "/api/sub-comment/{id}", method = RequestMethod.GET)
-//  public ResponseDto<?> getSubComments(
-//          @RequestBody SubCommentRequestDto requestDto,
-//          @PathVariable Long id,
-//          HttpServletRequest request
-//  ) {
-//    return commentService.getSubComments( requestDto, request , id);
+//  public ResponseDto<?> getSubComments( @PathVariable Long id ) {
+//
 //  }
 
 }

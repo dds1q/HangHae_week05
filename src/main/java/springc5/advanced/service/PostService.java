@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import springc5.advanced.controller.request.PostRequestDto;
-import springc5.advanced.controller.response.CommentResponseDto;
-import springc5.advanced.controller.response.PostAllResponseDto;
-import springc5.advanced.controller.response.PostResponseDto;
-import springc5.advanced.controller.response.ResponseDto;
+import springc5.advanced.controller.response.*;
 import springc5.advanced.domain.*;
 import springc5.advanced.jwt.TokenProvider;
 import springc5.advanced.repository.CommentRepository;
@@ -79,24 +76,38 @@ public class PostService {
       return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
     }
 
-    List<Comment> commentList = commentRepository.findAllByPost(post );
-    List<CommentResponseDto> comments = new ArrayList<>();
+    List<Comment> commentList = commentRepository.findAllByPost(post);
+    List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
 
     for (Comment comment : commentList) {
       if( comment.getCid() == null ){
         List<LikeComment> likeComments = likeCommentRepository.findAllByComment( comment );
-        comments.add(
+        List<Comment> subComments = commentRepository.findAllByCid( comment.getId() );
+        List<SubCommentResponseDto> subcommentResponseDtoList = new ArrayList<>();
+        for( Comment subComment : subComments ){
+          List<LikeComment> likesubComments = likeCommentRepository.findAllByComment( subComment );
+          subcommentResponseDtoList.add(
+                  SubCommentResponseDto.builder()
+                          .id(subComment.getId())
+                          .author(subComment.getMember().getNickname())
+                          .content(subComment.getContent())
+                          .likes((long) likesubComments.size() )
+                          .createdAt(subComment.getCreatedAt())
+                          .modifiedAt(subComment.getModifiedAt())
+                          .build() );
+        }
+        commentResponseDtoList.add(
                 CommentResponseDto.builder()
                         .id(comment.getId())
                         .author(comment.getMember().getNickname())
                         .content(comment.getContent())
                         .likes((long) likeComments.size() )
+                        .subComments( subcommentResponseDtoList )
                         .createdAt(comment.getCreatedAt())
                         .modifiedAt(comment.getModifiedAt())
                         .build()
         );
       }
-
     }
     List<LikePost> likePosts = likePostRepository.findAllByPost( post );
 
@@ -108,7 +119,7 @@ public class PostService {
             .imgUrl(post.getImgUrl())
             .author(post.getMember().getNickname())
             .likes((long) likePosts.size())
-            .comments(comments)
+            .comments(commentResponseDtoList)
             .createdAt(post.getCreatedAt())
             .modifiedAt(post.getModifiedAt())
             .build()
@@ -121,6 +132,7 @@ public class PostService {
     List<PostAllResponseDto> posts = new ArrayList<>();
     for(Post post : postList){
       List<LikePost> likePosts = likePostRepository.findAllByPost( post );
+      List<Comment> comments = commentRepository.findAllByPost( post );
       posts.add(
               PostAllResponseDto.builder()
                       .id(post.getId())
@@ -129,7 +141,7 @@ public class PostService {
                       .imgUrl(post.getImgUrl())
                       .author(post.getMember().getNickname())
                       .likes((long) likePosts.size())
-                      .commentsNum(post.getCommentsNum())
+                      .commentsNum((long) comments.size())
                       .createdAt(post.getCreatedAt())
                       .modifiedAt(post.getModifiedAt())
                       .build()
@@ -165,20 +177,37 @@ public class PostService {
     }
 
     List<Comment> commentList = commentRepository.findAllByPost(post);
-    List<CommentResponseDto> comments = new ArrayList<>();
+    List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
 
     for (Comment comment : commentList) {
-      List<LikeComment> likeComments = likeCommentRepository.findAllByComment( comment );
-      comments.add(
-              CommentResponseDto.builder()
-                      .id(comment.getId())
-                      .author(comment.getMember().getNickname())
-                      .content(comment.getContent())
-                      .likes((long) likeComments.size() )
-                      .createdAt(comment.getCreatedAt())
-                      .modifiedAt(comment.getModifiedAt())
-                      .build()
-      );
+      if( comment.getCid() == null ){
+        List<LikeComment> likeComments = likeCommentRepository.findAllByComment( comment );
+        List<Comment> subComments = commentRepository.findAllByCid( comment.getId() );
+        List<SubCommentResponseDto> subcommentResponseDtoList = new ArrayList<>();
+        for( Comment subComment : subComments ){
+          List<LikeComment> likesubComments = likeCommentRepository.findAllByComment( subComment );
+          subcommentResponseDtoList.add(
+                  SubCommentResponseDto.builder()
+                          .id(subComment.getId())
+                          .author(subComment.getMember().getNickname())
+                          .content(subComment.getContent())
+                          .likes((long) likesubComments.size() )
+                          .createdAt(subComment.getCreatedAt())
+                          .modifiedAt(subComment.getModifiedAt())
+                          .build() );
+        }
+        commentResponseDtoList.add(
+                CommentResponseDto.builder()
+                        .id(comment.getId())
+                        .author(comment.getMember().getNickname())
+                        .content(comment.getContent())
+                        .likes((long) likeComments.size() )
+                        .subComments( subcommentResponseDtoList )
+                        .createdAt(comment.getCreatedAt())
+                        .modifiedAt(comment.getModifiedAt())
+                        .build()
+        );
+      }
     }
 
     post.update(requestDto);
@@ -192,7 +221,7 @@ public class PostService {
                     .imgUrl(post.getImgUrl())
                     .author(post.getMember().getNickname())
                     .likes((long) likePosts.size())
-                    .comments(comments)
+                    .comments(commentResponseDtoList)
                     .createdAt(post.getCreatedAt())
                     .modifiedAt(post.getModifiedAt())
                     .build()

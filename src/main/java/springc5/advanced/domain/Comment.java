@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import springc5.advanced.controller.request.CommentRequestDto;
+import springc5.advanced.controller.request.SubCommentRequestDto;
 
 import javax.persistence.*;
 import java.util.List;
@@ -40,6 +41,10 @@ public class Comment extends Timestamped {
   private Long cid;
 
   public void update(CommentRequestDto commentRequestDto) {
+    this.content = commentRequestDto.getContent();
+  }
+
+  public void update(SubCommentRequestDto commentRequestDto) {
     this.content = commentRequestDto.getContent();
   }
 
