@@ -39,8 +39,19 @@ public class PostController {
 
   @RequestMapping(value = "/api/post", method = RequestMethod.GET)
   public ResponseDto<?> getAllPosts() {
-    return postService.getAllPost();
+    return postService.getAllPosts();
   }
+
+  @RequestMapping(value = "/api/auth/post", method = RequestMethod.GET)
+  public ResponseDto<?> getMyPosts( HttpServletRequest request ) {
+    return postService.getMyPosts( request );
+  }
+
+  @RequestMapping(value = "/api/auth/like/post", method = RequestMethod.GET)
+  public ResponseDto<?> getMyLikePosts( HttpServletRequest request ) {
+    return postService.getMyLikePosts( request );
+  }
+
 
   @RequestMapping(value = "/api/auth/post/{id}", method = RequestMethod.PUT)
   public ResponseDto<?> updatePost(@PathVariable Long id, @RequestBody PostRequestDto postRequestDto,

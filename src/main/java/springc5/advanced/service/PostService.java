@@ -3,7 +3,6 @@ package springc5.advanced.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 import springc5.advanced.controller.request.PostRequestDto;
 import springc5.advanced.controller.response.*;
@@ -173,7 +172,81 @@ public class PostService {
   }
 
   @Transactional(readOnly = true)
-  public ResponseDto<?> getAllPost() {
+  public ResponseDto<?> getMyPosts(HttpServletRequest request ) {
+    if (null == request.getHeader("Refresh-Token")) {
+      return ResponseDto.fail("MEMBER_NOT_FOUND",
+              "로그인이 필요합니다.");
+    }
+
+    if (null == request.getHeader("Authorization")) {
+      return ResponseDto.fail("MEMBER_NOT_FOUND",
+              "로그인이 필요합니다.");
+    }
+    Member member = validateMember(request);
+    if (null == member) {
+      return ResponseDto.fail("INVALID_TOKEN", "Token이 유효하지 않습니다.");
+    }
+    List<Post> postList = postRepository.findAllByMemberOrderByModifiedAtDesc( member );
+    List<PostAllResponseDto> posts = new ArrayList<>();
+    for(Post post : postList){
+      List<LikePost> likePosts = likePostRepository.findAllByPost( post );
+      List<Comment> comments = commentRepository.findAllByPost( post );
+      posts.add(
+              PostAllResponseDto.builder()
+                      .id(post.getId())
+                      .title(post.getTitle())
+                      .content(post.getContent())
+                      .imgUrl(post.getImgUrl())
+                      .author(post.getMember().getNickname())
+                      .likes((long) likePosts.size())
+                      .commentsNum((long) comments.size())
+                      .createdAt(post.getCreatedAt())
+                      .modifiedAt(post.getModifiedAt())
+                      .build()
+      );
+    }
+    return ResponseDto.success(posts);
+  }
+
+  @Transactional(readOnly = true)
+  public ResponseDto<?> getMyLikePosts( HttpServletRequest request ) {
+    if (null == request.getHeader("Refresh-Token")) {
+      return ResponseDto.fail("MEMBER_NOT_FOUND",
+              "로그인이 필요합니다.");
+    }
+    if (null == request.getHeader("Authorization")) {
+      return ResponseDto.fail("MEMBER_NOT_FOUND",
+              "로그인이 필요합니다.");
+    }
+    Member member = validateMember(request);
+
+    if (null == member) {
+      return ResponseDto.fail("INVALID_TOKEN", "Token이 유효하지 않습니다.");
+    }
+    List<LikePost> likepostList = likePostRepository.findAllByMember( member );
+    List<PostAllResponseDto> posts = new ArrayList<>();
+    for(LikePost likepost : likepostList){
+      Post post = likepost.getPost();
+      List<LikePost> likePosts = likePostRepository.findAllByPost( post );
+      List<Comment> comments = commentRepository.findAllByPost( post );
+      posts.add(
+              PostAllResponseDto.builder()
+                      .id(post.getId())
+                      .title(post.getTitle())
+                      .content(post.getContent())
+                      .imgUrl(post.getImgUrl())
+                      .author(post.getMember().getNickname())
+                      .likes((long) likePosts.size())
+                      .commentsNum((long) comments.size())
+                      .createdAt(post.getCreatedAt())
+                      .modifiedAt(post.getModifiedAt())
+                      .build()
+      );
+    }
+    return ResponseDto.success(posts);
+  }
+  @Transactional(readOnly = true)
+  public ResponseDto<?> getAllPosts() {
     List<Post> postList = postRepository.findAllByOrderByModifiedAtDesc();
     List<PostAllResponseDto> posts = new ArrayList<>();
     for(Post post : postList){

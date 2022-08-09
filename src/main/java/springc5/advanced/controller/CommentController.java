@@ -28,6 +28,16 @@ public class CommentController {
     return commentService.getAllComments(id);
   }
 
+  @RequestMapping(value = "/api/auth/comment", method = RequestMethod.GET)
+  public ResponseDto<?> getMyComments( HttpServletRequest request ) {
+    return commentService.getMyComments(request);
+  }
+
+  @RequestMapping(value = "/api/auth/like/comment", method = RequestMethod.GET)
+  public ResponseDto<?> getMyLikeComments(HttpServletRequest request) {
+    return commentService.getMyLikeComments(request);
+  }
+
   @RequestMapping(value = "/api/auth/comment/{id}", method = RequestMethod.PUT)
   public ResponseDto<?> updateComment(@PathVariable Long id, @RequestBody CommentRequestDto requestDto,
       HttpServletRequest request) {

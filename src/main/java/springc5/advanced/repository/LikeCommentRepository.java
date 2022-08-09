@@ -14,4 +14,5 @@ public interface LikeCommentRepository extends JpaRepository<LikeComment, Long> 
 
     List<LikeComment> findAllByComment(Comment comment);
 
+    List<LikeComment> findAllByMember(Member member);
 }

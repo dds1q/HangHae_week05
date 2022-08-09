@@ -14,6 +14,7 @@ import springc5.advanced.repository.CommentRepository;
 import springc5.advanced.repository.LikeCommentRepository;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.http.HttpClient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -70,12 +71,89 @@ public class CommentService {
   }
 
   @Transactional(readOnly = true)
+  public ResponseDto<?> getMyComments(HttpServletRequest request) {
+    if (null == request.getHeader("Refresh-Token")) {
+      return ResponseDto.fail("MEMBER_NOT_FOUND",
+              "로그인이 필요합니다.");
+    }
+
+    if (null == request.getHeader("Authorization")) {
+      return ResponseDto.fail("MEMBER_NOT_FOUND",
+              "로그인이 필요합니다.");
+    }
+
+    Member member = validateMember(request);
+    if (null == member) {
+      return ResponseDto.fail("INVALID_TOKEN", "Token이 유효하지 않습니다.");
+    }
+
+    List<Comment> commentList = commentRepository.findAllByMember(member);
+    List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
+
+    for (Comment comment : commentList) {
+        List<LikeComment> likeComments = likeCommentRepository.findAllByComment( comment );
+
+        commentResponseDtoList.add(
+                CommentResponseDto.builder()
+                        .id(comment.getId())
+                        .author(comment.getMember().getNickname())
+                        .content(comment.getContent())
+                        .likes((long) likeComments.size() )
+                        .createdAt(comment.getCreatedAt())
+                        .modifiedAt(comment.getModifiedAt())
+                        .build()
+        );
+      }
+
+    return ResponseDto.success(commentResponseDtoList);
+  }
+
+  @Transactional(readOnly = true)
+  public ResponseDto<?> getMyLikeComments(HttpServletRequest request) {
+    if (null == request.getHeader("Refresh-Token")) {
+      return ResponseDto.fail("MEMBER_NOT_FOUND",
+              "로그인이 필요합니다.");
+    }
+
+    if (null == request.getHeader("Authorization")) {
+      return ResponseDto.fail("MEMBER_NOT_FOUND",
+              "로그인이 필요합니다.");
+    }
+
+    Member member = validateMember(request);
+    if (null == member) {
+      return ResponseDto.fail("INVALID_TOKEN", "Token이 유효하지 않습니다.");
+    }
+
+    List<LikeComment> likecommentList = likeCommentRepository.findAllByMember(member);
+    List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
+
+    for (LikeComment likecomment : likecommentList) {
+      Comment comment = likecomment.getComment();
+
+      List<LikeComment> likeComments = likeCommentRepository.findAllByComment( comment );
+
+      commentResponseDtoList.add(
+              CommentResponseDto.builder()
+                      .id(comment.getId())
+                      .author(comment.getMember().getNickname())
+                      .content(comment.getContent())
+                      .likes((long) likeComments.size() )
+                      .createdAt(comment.getCreatedAt())
+                      .modifiedAt(comment.getModifiedAt())
+                      .build()
+      );
+    }
+
+    return ResponseDto.success(commentResponseDtoList);
+  }
+
+  @Transactional(readOnly = true)
   public ResponseDto<?> getAllComments(Long postId) {
     Post post = postService.isPresentPost(postId);
     if (null == post) {
       return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
     }
-
     List<Comment> commentList = commentRepository.findAllByPost(post);
     List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
 
@@ -329,4 +407,6 @@ public class CommentService {
     }
     return tokenProvider.getMemberFromAuthentication();
   }
+
+
 }
