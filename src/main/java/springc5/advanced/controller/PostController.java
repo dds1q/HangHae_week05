@@ -2,8 +2,10 @@ package springc5.advanced.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import springc5.advanced.controller.request.PostRequestDto;
 import springc5.advanced.controller.response.ResponseDto;
+import springc5.advanced.service.FileUploadService;
 import springc5.advanced.service.PostService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,11 +15,21 @@ import javax.servlet.http.HttpServletRequest;
 public class PostController {
 
   private final PostService postService;
+  private final FileUploadService fileUploadService;
 
   @RequestMapping(value = "/api/auth/post", method = RequestMethod.POST)
   public ResponseDto<?> createPost(@RequestBody PostRequestDto requestDto,
-                                   HttpServletRequest request) {
-    return postService.createPost(requestDto, request);
+                                   HttpServletRequest request
+  ) {
+    return postService.createPost(requestDto, request );
+  }
+
+  @RequestMapping(value = "/api/auth/post/upload", method = RequestMethod.POST)
+  public ResponseDto<?> createPostUpload(@RequestPart PostRequestDto requestDto,
+                                   HttpServletRequest request,
+                                   @RequestPart MultipartFile file
+                                  ) throws IllegalAccessException {
+    return postService.createPostUpload(requestDto, request , file );
   }
 
   @RequestMapping(value = "/api/post/{id}", method = RequestMethod.GET)
@@ -40,6 +52,11 @@ public class PostController {
   public ResponseDto<?> deletePost(@PathVariable Long id,
       HttpServletRequest request) {
     return postService.deletePost(id, request);
+  }
+
+  @PostMapping("/api/upload/image")
+  public String uploadImage(@RequestPart MultipartFile file) throws IllegalAccessException {
+    return fileUploadService.uploadImage( file );
   }
 
 }

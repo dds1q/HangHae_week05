@@ -3,6 +3,8 @@ package springc5.advanced.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 import springc5.advanced.controller.request.PostRequestDto;
 import springc5.advanced.controller.response.*;
 import springc5.advanced.domain.*;
@@ -25,11 +27,54 @@ public class PostService {
   private final PostRepository postRepository;
   private final CommentRepository commentRepository;
   private final LikeCommentRepository likeCommentRepository;
+  private final FileUploadService fileUploadService;
 
   private final TokenProvider tokenProvider;
 
+
   @Transactional
-  public ResponseDto<?> createPost(PostRequestDto requestDto, HttpServletRequest request) {
+  public ResponseDto<?> createPost(PostRequestDto requestDto, HttpServletRequest request ) {
+    if (null == request.getHeader("Refresh-Token")) {
+      return ResponseDto.fail("MEMBER_NOT_FOUND",
+              "로그인이 필요합니다.");
+    }
+
+    if (null == request.getHeader("Authorization")) {
+      return ResponseDto.fail("MEMBER_NOT_FOUND",
+              "로그인이 필요합니다.");
+    }
+    Member member = validateMember(request);
+    if (null == member) {
+      return ResponseDto.fail("INVALID_TOKEN", "Token이 유효하지 않습니다.");
+    }
+
+
+    Post post = Post.builder()
+            .title(requestDto.getTitle())
+            .content(requestDto.getContent())
+            .member(member)
+            .commentsNum(0L)
+            .build();
+    postRepository.save(post);
+
+    return ResponseDto.success(
+            PostResponseDto.builder()
+                    .id(post.getId())
+                    .title(post.getTitle())
+                    .content(post.getContent())
+                    .imgUrl(post.getImgUrl())
+                    .author(post.getMember().getNickname())
+                    .likes( 0L )
+                    .comments(null)
+                    .createdAt(post.getCreatedAt())
+                    .modifiedAt(post.getModifiedAt())
+                    .build()
+    );
+  }
+
+
+  @Transactional
+  public ResponseDto<?> createPostUpload(PostRequestDto requestDto, HttpServletRequest request , MultipartFile file) throws IllegalAccessException {
     if (null == request.getHeader("Refresh-Token")) {
       return ResponseDto.fail("MEMBER_NOT_FOUND",
           "로그인이 필요합니다.");
@@ -39,17 +84,18 @@ public class PostService {
       return ResponseDto.fail("MEMBER_NOT_FOUND",
           "로그인이 필요합니다.");
     }
-
     Member member = validateMember(request);
     if (null == member) {
       return ResponseDto.fail("INVALID_TOKEN", "Token이 유효하지 않습니다.");
     }
 
+    String imgUrl = fileUploadService.uploadImage( file );
 
     Post post = Post.builder()
         .title(requestDto.getTitle())
         .content(requestDto.getContent())
         .member(member)
+        .imgUrl(imgUrl)
         .commentsNum(0L)
         .build();
     postRepository.save(post);
