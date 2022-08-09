@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import springc5.advanced.controller.request.PostRequestDto;
+import springc5.advanced.controller.response.CommentResponseDto;
+import springc5.advanced.repository.CommentRepository;
 
 import javax.persistence.*;
 import java.util.List;
@@ -54,5 +56,6 @@ public class Post extends Timestamped {
   public boolean validateMember(Member member) {
     return !this.member.equals(member);
   }
+
 
 }

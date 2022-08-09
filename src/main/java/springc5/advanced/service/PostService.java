@@ -33,20 +33,11 @@ public class PostService {
 
   @Transactional
   public ResponseDto<?> createPost(PostRequestDto requestDto, HttpServletRequest request ) {
-    if (null == request.getHeader("Refresh-Token")) {
-      return ResponseDto.fail("MEMBER_NOT_FOUND",
-              "로그인이 필요합니다.");
-    }
 
-    if (null == request.getHeader("Authorization")) {
-      return ResponseDto.fail("MEMBER_NOT_FOUND",
-              "로그인이 필요합니다.");
-    }
     Member member = validateMember(request);
     if (null == member) {
       return ResponseDto.fail("INVALID_TOKEN", "Token이 유효하지 않습니다.");
     }
-
 
     Post post = Post.builder()
             .title(requestDto.getTitle())
@@ -56,33 +47,14 @@ public class PostService {
             .build();
     postRepository.save(post);
 
-    return ResponseDto.success(
-            PostResponseDto.builder()
-                    .id(post.getId())
-                    .title(post.getTitle())
-                    .content(post.getContent())
-                    .imgUrl(post.getImgUrl())
-                    .author(post.getMember().getNickname())
-                    .likes( 0L )
-                    .comments(null)
-                    .createdAt(post.getCreatedAt())
-                    .modifiedAt(post.getModifiedAt())
-                    .build()
-    );
+    return ResponseDto.success( new PostResponseDto( post , 0L, null ) );
   }
 
 
   @Transactional
   public ResponseDto<?> createPostUpload(PostRequestDto requestDto, HttpServletRequest request , MultipartFile file) throws IllegalAccessException {
-    if (null == request.getHeader("Refresh-Token")) {
-      return ResponseDto.fail("MEMBER_NOT_FOUND",
-          "로그인이 필요합니다.");
-    }
 
-    if (null == request.getHeader("Authorization")) {
-      return ResponseDto.fail("MEMBER_NOT_FOUND",
-          "로그인이 필요합니다.");
-    }
+
     Member member = validateMember(request);
     if (null == member) {
       return ResponseDto.fail("INVALID_TOKEN", "Token이 유효하지 않습니다.");
@@ -99,19 +71,7 @@ public class PostService {
         .build();
     postRepository.save(post);
 
-    return ResponseDto.success(
-        PostResponseDto.builder()
-            .id(post.getId())
-            .title(post.getTitle())
-            .content(post.getContent())
-            .imgUrl(post.getImgUrl())
-            .author(post.getMember().getNickname())
-            .likes( 0L )
-            .comments(null)
-            .createdAt(post.getCreatedAt())
-            .modifiedAt(post.getModifiedAt())
-            .build()
-    );
+    return ResponseDto.success(  new PostResponseDto( post , 0L , null ) );
   }
 
   @Transactional(readOnly = true)
@@ -131,57 +91,19 @@ public class PostService {
         List<SubCommentResponseDto> subcommentResponseDtoList = new ArrayList<>();
         for( Comment subComment : subComments ){
           List<LikeComment> likesubComments = likeCommentRepository.findAllByComment( subComment );
-          subcommentResponseDtoList.add(
-                  SubCommentResponseDto.builder()
-                          .id(subComment.getId())
-                          .author(subComment.getMember().getNickname())
-                          .content(subComment.getContent())
-                          .likes((long) likesubComments.size() )
-                          .createdAt(subComment.getCreatedAt())
-                          .modifiedAt(subComment.getModifiedAt())
-                          .build() );
+          subcommentResponseDtoList.add( new SubCommentResponseDto ( subComment , (long) likesubComments.size()) );
         }
-        commentResponseDtoList.add(
-                CommentResponseDto.builder()
-                        .id(comment.getId())
-                        .author(comment.getMember().getNickname())
-                        .content(comment.getContent())
-                        .likes((long) likeComments.size() )
-                        .subComments( subcommentResponseDtoList )
-                        .createdAt(comment.getCreatedAt())
-                        .modifiedAt(comment.getModifiedAt())
-                        .build()
-        );
+        commentResponseDtoList.add( new CommentResponseDto( comment , (long) likeComments.size() , subcommentResponseDtoList ) );
       }
     }
     List<LikePost> likePosts = likePostRepository.findAllByPost( post );
 
-    return ResponseDto.success(
-        PostResponseDto.builder()
-            .id(post.getId())
-            .title(post.getTitle())
-            .content(post.getContent())
-            .imgUrl(post.getImgUrl())
-            .author(post.getMember().getNickname())
-            .likes((long) likePosts.size())
-            .comments(commentResponseDtoList)
-            .createdAt(post.getCreatedAt())
-            .modifiedAt(post.getModifiedAt())
-            .build()
-    );
+    return ResponseDto.success( new PostResponseDto( post , (long) likePosts.size(), commentResponseDtoList ) );
   }
 
   @Transactional(readOnly = true)
   public ResponseDto<?> getMyPosts(HttpServletRequest request ) {
-    if (null == request.getHeader("Refresh-Token")) {
-      return ResponseDto.fail("MEMBER_NOT_FOUND",
-              "로그인이 필요합니다.");
-    }
 
-    if (null == request.getHeader("Authorization")) {
-      return ResponseDto.fail("MEMBER_NOT_FOUND",
-              "로그인이 필요합니다.");
-    }
     Member member = validateMember(request);
     if (null == member) {
       return ResponseDto.fail("INVALID_TOKEN", "Token이 유효하지 않습니다.");
@@ -191,33 +113,14 @@ public class PostService {
     for(Post post : postList){
       List<LikePost> likePosts = likePostRepository.findAllByPost( post );
       List<Comment> comments = commentRepository.findAllByPost( post );
-      posts.add(
-              PostAllResponseDto.builder()
-                      .id(post.getId())
-                      .title(post.getTitle())
-                      .content(post.getContent())
-                      .imgUrl(post.getImgUrl())
-                      .author(post.getMember().getNickname())
-                      .likes((long) likePosts.size())
-                      .commentsNum((long) comments.size())
-                      .createdAt(post.getCreatedAt())
-                      .modifiedAt(post.getModifiedAt())
-                      .build()
-      );
+      posts.add( new PostAllResponseDto( post , (long) likePosts.size(), (long) comments.size()) );
     }
     return ResponseDto.success(posts);
   }
 
   @Transactional(readOnly = true)
   public ResponseDto<?> getMyLikePosts( HttpServletRequest request ) {
-    if (null == request.getHeader("Refresh-Token")) {
-      return ResponseDto.fail("MEMBER_NOT_FOUND",
-              "로그인이 필요합니다.");
-    }
-    if (null == request.getHeader("Authorization")) {
-      return ResponseDto.fail("MEMBER_NOT_FOUND",
-              "로그인이 필요합니다.");
-    }
+
     Member member = validateMember(request);
 
     if (null == member) {
@@ -229,19 +132,8 @@ public class PostService {
       Post post = likepost.getPost();
       List<LikePost> likePosts = likePostRepository.findAllByPost( post );
       List<Comment> comments = commentRepository.findAllByPost( post );
-      posts.add(
-              PostAllResponseDto.builder()
-                      .id(post.getId())
-                      .title(post.getTitle())
-                      .content(post.getContent())
-                      .imgUrl(post.getImgUrl())
-                      .author(post.getMember().getNickname())
-                      .likes((long) likePosts.size())
-                      .commentsNum((long) comments.size())
-                      .createdAt(post.getCreatedAt())
-                      .modifiedAt(post.getModifiedAt())
-                      .build()
-      );
+      posts.add( new PostAllResponseDto( post , (long) likePosts.size(), (long) comments.size()) );
+
     }
     return ResponseDto.success(posts);
   }
@@ -252,34 +144,13 @@ public class PostService {
     for(Post post : postList){
       List<LikePost> likePosts = likePostRepository.findAllByPost( post );
       List<Comment> comments = commentRepository.findAllByPost( post );
-      posts.add(
-              PostAllResponseDto.builder()
-                      .id(post.getId())
-                      .title(post.getTitle())
-                      .content(post.getContent())
-                      .imgUrl(post.getImgUrl())
-                      .author(post.getMember().getNickname())
-                      .likes((long) likePosts.size())
-                      .commentsNum((long) comments.size())
-                      .createdAt(post.getCreatedAt())
-                      .modifiedAt(post.getModifiedAt())
-                      .build()
-      );
+      posts.add( new PostAllResponseDto( post , (long) likePosts.size(), (long) comments.size()));
     }
     return ResponseDto.success(posts);
   }
 
   @Transactional
   public ResponseDto<?> updatePost(Long id, PostRequestDto requestDto, HttpServletRequest request) {
-    if (null == request.getHeader("Refresh-Token")) {
-      return ResponseDto.fail("MEMBER_NOT_FOUND",
-          "로그인이 필요합니다.");
-    }
-
-    if (null == request.getHeader("Authorization")) {
-      return ResponseDto.fail("MEMBER_NOT_FOUND",
-          "로그인이 필요합니다.");
-    }
 
     Member member = validateMember(request);
     if (null == member) {
@@ -305,59 +176,20 @@ public class PostService {
         List<SubCommentResponseDto> subcommentResponseDtoList = new ArrayList<>();
         for( Comment subComment : subComments ){
           List<LikeComment> likesubComments = likeCommentRepository.findAllByComment( subComment );
-          subcommentResponseDtoList.add(
-                  SubCommentResponseDto.builder()
-                          .id(subComment.getId())
-                          .author(subComment.getMember().getNickname())
-                          .content(subComment.getContent())
-                          .likes((long) likesubComments.size() )
-                          .createdAt(subComment.getCreatedAt())
-                          .modifiedAt(subComment.getModifiedAt())
-                          .build() );
+          subcommentResponseDtoList.add( new SubCommentResponseDto ( subComment , (long) likesubComments.size()) );
         }
-        commentResponseDtoList.add(
-                CommentResponseDto.builder()
-                        .id(comment.getId())
-                        .author(comment.getMember().getNickname())
-                        .content(comment.getContent())
-                        .likes((long) likeComments.size() )
-                        .subComments( subcommentResponseDtoList )
-                        .createdAt(comment.getCreatedAt())
-                        .modifiedAt(comment.getModifiedAt())
-                        .build()
-        );
+        commentResponseDtoList.add( new CommentResponseDto( comment , (long) likeComments.size() , subcommentResponseDtoList ) );
       }
     }
 
     post.update(requestDto);
 
     List<LikePost> likePosts = likePostRepository.findAllByPost( post );
-    return ResponseDto.success(
-            PostResponseDto.builder()
-                    .id(post.getId())
-                    .title(post.getTitle())
-                    .content(post.getContent())
-                    .imgUrl(post.getImgUrl())
-                    .author(post.getMember().getNickname())
-                    .likes((long) likePosts.size())
-                    .comments(commentResponseDtoList)
-                    .createdAt(post.getCreatedAt())
-                    .modifiedAt(post.getModifiedAt())
-                    .build()
-    );
+    return ResponseDto.success( new PostResponseDto( post , (long) likePosts.size(), commentResponseDtoList ) );
   }
 
   @Transactional
   public ResponseDto<?> deletePost(Long id, HttpServletRequest request) {
-    if (null == request.getHeader("Refresh-Token")) {
-      return ResponseDto.fail("MEMBER_NOT_FOUND",
-          "로그인이 필요합니다.");
-    }
-
-    if (null == request.getHeader("Authorization")) {
-      return ResponseDto.fail("MEMBER_NOT_FOUND",
-          "로그인이 필요합니다.");
-    }
 
     Member member = validateMember(request);
     if (null == member) {
@@ -397,5 +229,7 @@ public class PostService {
     }
     return tokenProvider.getMemberFromAuthentication();
   }
+
+
 
 }

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import springc5.advanced.domain.Post;
 
 import java.time.LocalDateTime;
 
@@ -21,6 +22,19 @@ public class PostAllResponseDto {
     private Long commentsNum;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
+
+    public PostAllResponseDto(Post post , Long likes , Long commentsNum ){
+        id = post.getId();
+        title = post.getTitle();
+        content = post.getContent();
+        imgUrl = post.getImgUrl();
+        author = post.getMember().getNickname();
+        createdAt = post.getCreatedAt();
+        modifiedAt = post.getModifiedAt();
+        this.likes = likes;
+        this.commentsNum = commentsNum;
+    }
+
 }
 
 /**
