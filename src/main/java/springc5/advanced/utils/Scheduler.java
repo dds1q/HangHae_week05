@@ -6,8 +6,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import springc5.advanced.domain.Comment;
+import springc5.advanced.domain.LikeComment;
+import springc5.advanced.domain.LikePost;
 import springc5.advanced.domain.Post;
 import springc5.advanced.repository.CommentRepository;
+import springc5.advanced.repository.LikePostRepository;
 import springc5.advanced.repository.PostRepository;
 import springc5.advanced.service.PostService;
 
@@ -20,6 +23,7 @@ public class Scheduler {
 
     private final Logger logger = LoggerFactory.getLogger( this.getClass() );
     private final PostRepository postRepository;
+    private final LikePostRepository likePostRepository;
     private final CommentRepository commentRepository;
 
 
@@ -32,7 +36,10 @@ public class Scheduler {
         for ( Post post : postList ) {
             List<Comment> comments = commentRepository.findAllByPost( post );
             if( comments.size() == 0 ){
-                postRepository.delete( post );
+                List<LikePost> likePosts = likePostRepository.findAllByPost( post );
+                commentRepository.deleteAll( comments );
+                likePostRepository.deleteAll( likePosts );
+                postRepository.delete(post);
                 logger.info("게시물 <"+ post.getTitle() + ">이 삭제되었습니다.");
             }
         }
