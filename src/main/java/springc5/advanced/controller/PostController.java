@@ -17,14 +17,14 @@ public class PostController {
   private final PostService postService;
   private final FileUploadService fileUploadService;
 
-  @RequestMapping(value = "/api/auth/post", method = RequestMethod.POST)
+  @PostMapping("/api/auth/post")
   public ResponseDto<?> createPost(@RequestBody PostRequestDto requestDto,
                                    HttpServletRequest request
   ) {
     return postService.createPost(requestDto, request );
   }
 
-  @RequestMapping(value = "/api/auth/post/upload", method = RequestMethod.POST)
+  @PostMapping("/api/auth/post/upload")
   public ResponseDto<?> createPostUpload(@RequestPart PostRequestDto requestDto,
                                    HttpServletRequest request,
                                    @RequestPart MultipartFile file
@@ -32,34 +32,34 @@ public class PostController {
     return postService.createPostUpload(requestDto, request , file );
   }
 
-  @RequestMapping(value = "/api/post/{id}", method = RequestMethod.GET)
+  @GetMapping("/api/post/{id}")
   public ResponseDto<?> getPost(@PathVariable Long id) {
     return postService.getPost(id);
   }
 
-  @RequestMapping(value = "/api/post", method = RequestMethod.GET)
+  @GetMapping("/api/post")
   public ResponseDto<?> getAllPosts() {
     return postService.getAllPosts();
   }
 
-  @RequestMapping(value = "/api/auth/post", method = RequestMethod.GET)
+  @GetMapping("/api/auth/post")
   public ResponseDto<?> getMyPosts( HttpServletRequest request ) {
     return postService.getMyPosts( request );
   }
 
-  @RequestMapping(value = "/api/auth/like/post", method = RequestMethod.GET)
+  @GetMapping("/api/auth/like/post")
   public ResponseDto<?> getMyLikePosts( HttpServletRequest request ) {
     return postService.getMyLikePosts( request );
   }
 
 
-  @RequestMapping(value = "/api/auth/post/{id}", method = RequestMethod.PUT)
+  @PutMapping("/api/auth/post/{id}")
   public ResponseDto<?> updatePost(@PathVariable Long id, @RequestBody PostRequestDto postRequestDto,
       HttpServletRequest request) {
     return postService.updatePost(id, postRequestDto, request);
   }
 
-  @RequestMapping(value = "/api/auth/post/{id}", method = RequestMethod.DELETE)
+  @DeleteMapping("/api/auth/post/{id}")
   public ResponseDto<?> deletePost(@PathVariable Long id,
       HttpServletRequest request) {
     return postService.deletePost(id, request);

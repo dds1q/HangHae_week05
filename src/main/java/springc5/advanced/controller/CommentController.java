@@ -17,40 +17,40 @@ public class CommentController {
 
   private final CommentService commentService;
 
-  @RequestMapping(value = "/api/auth/comment", method = RequestMethod.POST)
+  @PostMapping("/api/auth/comment")
   public ResponseDto<?> createComment(@RequestBody CommentRequestDto requestDto,
                                       HttpServletRequest request) {
     return commentService.createComment(requestDto, request);
   }
 
-  @RequestMapping(value = "/api/comment/{id}", method = RequestMethod.GET)
+  @GetMapping("/api/comment/{id}")
   public ResponseDto<?> getAllComments(@PathVariable Long id) {
     return commentService.getAllComments(id);
   }
 
-  @RequestMapping(value = "/api/auth/comment", method = RequestMethod.GET)
+  @GetMapping("/api/auth/comment")
   public ResponseDto<?> getMyComments( HttpServletRequest request ) {
     return commentService.getMyComments(request);
   }
 
-  @RequestMapping(value = "/api/auth/like/comment", method = RequestMethod.GET)
+  @GetMapping("/api/auth/like/comment")
   public ResponseDto<?> getMyLikeComments(HttpServletRequest request) {
     return commentService.getMyLikeComments(request);
   }
 
-  @RequestMapping(value = "/api/auth/comment/{id}", method = RequestMethod.PUT)
+  @PutMapping("/api/auth/comment/{id}")
   public ResponseDto<?> updateComment(@PathVariable Long id, @RequestBody CommentRequestDto requestDto,
       HttpServletRequest request) {
     return commentService.updateComment(id, requestDto, request);
   }
 
-  @RequestMapping(value = "/api/auth/comment/{id}", method = RequestMethod.DELETE)
+  @DeleteMapping( "/api/auth/comment/{id}")
   public ResponseDto<?> deleteComment(@PathVariable Long id,
       HttpServletRequest request) {
     return commentService.deleteComment(id, request);
   }
 
-  @RequestMapping(value = "/api/auth/sub-comment", method = RequestMethod.POST)
+  @PostMapping("/api/auth/sub-comment")
   public ResponseDto<?> createSubComment(
           @RequestBody SubCommentRequestDto requestDto,
           HttpServletRequest request
@@ -58,7 +58,7 @@ public class CommentController {
     return commentService.createSubComment(requestDto, request );
   }
 
-  @RequestMapping(value = "/api/auth/sub-comment/{id}", method = RequestMethod.PUT)
+  @PutMapping("/api/auth/sub-comment/{id}")
   public ResponseDto<?> updateSubComment(
           @PathVariable Long id,
           @RequestBody SubCommentRequestDto requestDto,
@@ -67,15 +67,10 @@ public class CommentController {
     return commentService.updateSubComment(requestDto, request , id);
   }
 
-  @RequestMapping(value = "/api/auth/sub-comment/{id}", method = RequestMethod.DELETE)
+  @DeleteMapping("/api/auth/sub-comment/{id}")
   public ResponseDto<?> deleteSubComment(@PathVariable Long id,
                                       HttpServletRequest request) {
     return commentService.deleteSubComment(id, request);
   }
-
-//  @RequestMapping(value = "/api/sub-comment/{id}", method = RequestMethod.GET)
-//  public ResponseDto<?> getSubComments( @PathVariable Long id ) {
-//
-//  }
 
 }

@@ -17,7 +17,7 @@ public class LikeController {
 
     private final LikeService likeService;
 
-    @RequestMapping(value = "/api/auth/like/post/{id}", method = RequestMethod.POST)
+    @PostMapping("/api/auth/like/post/{id}")
     public ResponseDto<?> doPostLike( @PathVariable Long id, HttpServletRequest request) {
         return likeService.doPostLike( id , request );
     }
@@ -27,7 +27,7 @@ public class LikeController {
 //        return likeService.cancelPostLike( id , request );
 //    }
 
-    @RequestMapping(value = "/api/auth/like/comment/{id}", method = RequestMethod.POST)
+    @PostMapping("/api/auth/like/comment/{id}")
     public ResponseDto<?> doCommentLike( @PathVariable Long id, HttpServletRequest request) {
         return likeService.doCommentLike( id , request );
     }
