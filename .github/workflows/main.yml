@@ -41,8 +41,5 @@ jobs:
       with:
         arguments: build
 
-    - name: Build with Gradle
-      run: ./gradlew build
-
     - name: Test with Gradle
       run: ./gradlew test
