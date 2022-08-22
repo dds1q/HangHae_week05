@@ -9,6 +9,8 @@ on:
 env:
   S3_BUCKET_NAME: hanghae-week05
 
+permissions: write-all
+
 jobs:
   build:
 
@@ -22,6 +24,14 @@ jobs:
       with:
         java-version: '11'
         distribution: 'temurin'
+        
+    - name: Setup MySQL
+      uses: samin/mysql-action@v1
+      with:
+        character set server: 'utf8'
+        mysql database: hanghae_week05
+        mysql user: east
+        mysql password: east123!  
         
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
