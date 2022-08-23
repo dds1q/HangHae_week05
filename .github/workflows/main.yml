@@ -9,7 +9,8 @@ on:
 env:
   S3_BUCKET_NAME: hanghae-week05
 
-permissions: write-all
+permissions:
+  contents: read
 
 jobs:
   deploy:
@@ -37,7 +38,7 @@ jobs:
     - name: Build with Gradle
       uses: gradle/gradle-build-action@0d13054264b0bb894ded474f08ebb30921341cee
       with:
-        arguments: build -x test
+        arguments: clean build -x test
         
     # 디렉토리 생성
     - name: Make Directory
