@@ -76,7 +76,7 @@ jobs:
         aws deploy push \
           --application-name ${{ secrets.CODE_DEPLOY_APPLICATION_NAME }} \
           --ignore-hidden-files \
-          --s3-location s3://$S3_BUCKET_NAME/gitactionTest.zip \
+          --s3-location s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip \
           --source .
 
 
@@ -90,5 +90,5 @@ jobs:
           --application-name ${{ secrets.CODE_DEPLOY_APPLICATION_NAME }} \
           --deployment-group-name ${{ secrets.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME }} \
           --file-exists-behavior OVERWRITE \
-          --s3-location bucket=hanghae-week05,bundleType=zip,key=gitactionTest.zip \
+          --s3-location bucket=$S3_BUCKET_NAME,key=$GITHUB_SHA.zip,bundleType=zip
           --region ap-northeast-2
