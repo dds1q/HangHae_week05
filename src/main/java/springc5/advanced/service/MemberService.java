@@ -31,7 +31,7 @@ public class MemberService {
   public ResponseDto<?> createMember(MemberRequestDto requestDto) {
     if (null != isPresentMember(requestDto.getNickname())) {
       return ResponseDto.fail("DUPLICATED_NICKNAME",
-          "중복된 닉네임 입니다.");
+          "중복된 닉네임 입니다!.");
     }
 
     if (!requestDto.getPassword().equals(requestDto.getPasswordConfirm())) {
