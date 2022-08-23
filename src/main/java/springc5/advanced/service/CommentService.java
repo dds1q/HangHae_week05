@@ -239,7 +239,7 @@ public class CommentService {
     }
 
     if (comment.validateMember(member)) {
-      return ResponseDto.fail("BAD_REQUEST", "작성자만 삭제할 수 있습니다.");
+      return ResponseDto.fail("BAD_REQUEST", "작성자만 삭제할 수 있습니다...");
     }
 
     List<LikeComment> likeComments = likeCommentRepository.findAllByComment( comment );
