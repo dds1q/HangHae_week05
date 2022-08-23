@@ -34,6 +34,9 @@ jobs:
         mysql database: hanghae_week05
         mysql user: east
         mysql password: ${{ secrets.MYSQL_PASSWORD }}
+        
+    - name: Run chmod to make gradlew executable
+      run: chmod +x ./gradlew
 
     - name: Build with Gradle
       uses: gradle/gradle-build-action@0d13054264b0bb894ded474f08ebb30921341cee
