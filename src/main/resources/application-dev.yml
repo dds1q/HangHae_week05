@@ -1,0 +1,57 @@
+server:
+  port: 8080
+
+spring:
+  servlet: #  max file size
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+  mvc:
+    path match:
+      matching-strategy: ant_path_matcher # Spring boot 2.6 이후부터  spring.mvc.pathmatch.matching-strategy 값이 ant_path_matcher에서 path_pattern_parser로 변경
+  main:
+    allow-circular-references: true
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://database-week07.ckupekbmsvae.ap-northeast-2.rds.amazonaws.com:3306/hanghae_week07
+    username: east
+    password: east123!
+
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      use-new-id-generator-mappings: false
+    show-sql: true
+    generate-ddl: true
+    properties:
+      hibernate:
+        default_batch_fetch_size: 1000
+
+  output:
+    ansi:
+      enabled: always
+
+jwt:
+  secret: 4oCYc3ByaW5nLWJvb3Qtc2VjdXJpdHktand0LWhhbmdoYWUtYXNzaWdubWVudC1zcHJpbmctYm9vdC1zZWN1cml0eS1qd3Qtc2VjcmV0LWtleeKAmQo=
+
+logging:
+  level:
+    '[org.apache.coyote.http11]': DEBUG
+    '[org.springframework.web]': DEBUG
+    '[org.hibernate]': DEBUG
+
+# AWS S3 Bucket Access Key (IAM csv)
+cloud:
+  aws:
+    credentials:
+      access-key: AKIARLPN55WFUI63VHDH
+      secret-key: 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
+    s3:
+      bucket: hanghae-week05
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
