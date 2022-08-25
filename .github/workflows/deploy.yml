@@ -34,6 +34,18 @@ jobs:
         distribution: 'temurin'
         java-version: '11'
         
+    - name: Set yaml file
+      uses: microsoft/variable-substitution@v1
+      with:
+        files: ./src/main/resources/application-prod.yml
+      env:
+        override.value: 'from deploy.yaml'
+        spring.datasource.username: east
+        spring.datasource.password: ${{ secrets.MYSQL_PASSWORD }}
+        cloud.aws.credentials.access-key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        cloud.aws.credentials.secret-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        jwt.secret: ${{ secrets.JWT_SECRET }}
+        
     - name: Make gradlew executable
       run: chmod +x ./gradlew
 
